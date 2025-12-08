@@ -3,7 +3,7 @@
   "name": "L2 Agent",
   "version": "1.0.0",
   "description": "A Chrome extension foundation",
-  "permissions": ["activeTab", "storage"],
+  "permissions": ["activeTab", "storage", "scripting"],
   "host_permissions": ["http://*/*", "https://*/*"],
   "action": {
     "default_popup": "popup.html",
