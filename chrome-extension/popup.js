@@ -15,15 +15,34 @@ document.addEventListener('DOMContentLoaded', () => {
   // Handle button click
   actionBtn.addEventListener('click', async () => {
     try {
-      // Example: Get current tab and send message to content script
+      // Get current tab and extract page content
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       
-      const response = await chrome.tabs.sendMessage(tab.id, {
-        action: 'doSomething'
+      // Extract page content
+      const pageData = await chrome.tabs.sendMessage(tab.id, {
+        action: 'extractPageContent'
       });
 
-      resultDiv.textContent = response?.message || 'Action completed!';
-      resultDiv.classList.add('show');
+      if (!pageData.success) {
+        throw new Error('Failed to extract page content');
+      }
+
+      // Send to backend for analysis
+      const backendResponse = await chrome.runtime.sendMessage({
+        action: 'analyzePage',
+        url: pageData.data.url,
+        title: pageData.data.title,
+        content: pageData.data.content,
+        metadata: pageData.data.metadata
+      });
+
+      if (backendResponse.success) {
+        resultDiv.textContent = 'Page analyzed successfully!';
+        resultDiv.classList.add('show');
+        console.log('Backend response:', backendResponse.result);
+      } else {
+        throw new Error(backendResponse.error || 'Backend request failed');
+      }
     } catch (error) {
       console.error('Error:', error);
       resultDiv.textContent = 'Error: ' + error.message;

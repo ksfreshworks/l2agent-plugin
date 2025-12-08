@@ -2,6 +2,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("options-form");
   const enabledCheckbox = document.getElementById("enabled");
+  const backendUrlInput = document.getElementById("backend-url");
   const customSettingInput = document.getElementById("custom-setting");
   const saveMessage = document.getElementById("save-message");
 
@@ -9,6 +10,9 @@ document.addEventListener("DOMContentLoaded", () => {
   chrome.storage.sync.get(["settings"], (result) => {
     if (result.settings) {
       enabledCheckbox.checked = result.settings.enabled !== false;
+      if (result.settings.backendUrl) {
+        backendUrlInput.value = result.settings.backendUrl;
+      }
       if (result.settings.customSetting) {
         customSettingInput.value = result.settings.customSetting;
       }
@@ -21,6 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const settings = {
       enabled: enabledCheckbox.checked,
+      backendUrl: backendUrlInput.value || "http://localhost:3000",
       customSetting: customSettingInput.value,
       lastUpdated: new Date().toISOString(),
     };
