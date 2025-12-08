@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>L2 Agent - Options</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .options-container {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #333;
+    }
+    input[type="text"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    .save-btn {
+      margin-top: 20px;
+    }
+    .success-message {
+      display: none;
+      padding: 10px;
+      background: #e8f5e9;
+      color: #2e7d32;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+    .success-message.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="options-container">
+    <header>
+      <h1>L2 Agent Settings</h1>
+    </header>
+    <main>
+      <form id="options-form">
+        <div class="form-group">
+          <label for="enabled">Enable Extension</label>
+          <input type="checkbox" id="enabled" checked>
+        </div>
+        <div class="form-group">
+          <label for="custom-setting">Custom Setting</label>
+          <input type="text" id="custom-setting" placeholder="Enter value">
+        </div>
+        <button type="submit" class="btn btn-primary save-btn">Save Settings</button>
+        <div id="save-message" class="success-message">Settings saved!</div>
+      </form>
+    </main>
+  </div>
+  <script src="options.js"></script>
+</body>
+</html>
+
