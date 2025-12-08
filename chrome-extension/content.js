@@ -19,6 +19,26 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     });
   }
 
+  if (request.action === "extractPageContent") {
+    // Extract page content for analysis
+    const pageData = {
+      url: window.location.href,
+      title: document.title,
+      content: document.body.innerText || document.body.textContent || '',
+      html: document.documentElement.outerHTML.substring(0, 50000), // Limit HTML size
+      metadata: {
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        language: navigator.language
+      }
+    };
+
+    sendResponse({
+      success: true,
+      data: pageData
+    });
+  }
+
   return true; // Keep the message channel open for async response
 });
 
