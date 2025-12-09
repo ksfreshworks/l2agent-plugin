@@ -1,8 +1,10 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const config = require('./config/config');
 const apiRoutes = require('./routes/api');
+const dashboardRoutes = require('./routes/dashboard');
 const llmService = require('./services/llm');
 
 const app = express();
@@ -13,11 +15,15 @@ app.use(cors({
   origin: config.allowedOrigins || '*',
   credentials: true
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Serve static files for dashboard
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.use('/api', apiRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // LLM connectivity check endpoint
 app.get('/health/llm', async (req, res) => {
@@ -72,6 +78,15 @@ app.get('/health', async (req, res) => {
   res.status(200).json(health);
 });
 
+// Serve dashboard for root and non-API routes
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Error:', err);
@@ -82,7 +97,17 @@ app.use((err, req, res, next) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`L2 Agent backend server running on port ${PORT}`);
-  console.log(`Environment: ${config.env || 'development'}`);
+  console.log('');
+  console.log('╔══════════════════════════════════════════════════════════╗');
+  console.log('║                 L2 Agent Backend Server                  ║');
+  console.log('╠══════════════════════════════════════════════════════════╣');
+  console.log(`║  🚀 Server running on port ${PORT}                           ║`);
+  console.log(`║  📊 Dashboard: http://localhost:${PORT}/                      ║`);
+  console.log(`║  🔌 API Base:  http://localhost:${PORT}/api                   ║`);
+  console.log(`║  💚 Health:    http://localhost:${PORT}/health                ║`);
+  console.log('╠══════════════════════════════════════════════════════════╣');
+  console.log(`║  Environment: ${(config.env || 'development').padEnd(40)}║`);
+  console.log('╚══════════════════════════════════════════════════════════╝');
+  console.log('');
 });
 

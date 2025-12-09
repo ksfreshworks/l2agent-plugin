@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L2 Agent - Test Page</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        :root {
+            --bg: #0f0f10;
+            --bg-card: #1a1a1e;
+            --text: #ffffff;
+            --text-dim: #a0a0a8;
+            --accent-red: #ef4444;
+            --accent-orange: #f97316;
+            --accent-yellow: #eab308;
+            --accent-green: #22c55e;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --border: #2d2d32;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+        
+        h1 {
+            font-size: 32px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            color: var(--text-dim);
+            font-size: 16px;
+        }
+        
+        .section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .section h2 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section h2 span {
+            font-size: 24px;
+        }
+        
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        
+        button {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .btn-error {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--accent-red);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .btn-error:hover {
+            background: rgba(239, 68, 68, 0.25);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+        
+        .btn-api {
+            background: rgba(249, 115, 22, 0.15);
+            color: var(--accent-orange);
+            border: 1px solid rgba(249, 115, 22, 0.3);
+        }
+        
+        .btn-api:hover {
+            background: rgba(249, 115, 22, 0.25);
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
+        }
+        
+        .btn-warning {
+            background: rgba(234, 179, 8, 0.15);
+            color: var(--accent-yellow);
+            border: 1px solid rgba(234, 179, 8, 0.3);
+        }
+        
+        .btn-warning:hover {
+            background: rgba(234, 179, 8, 0.25);
+            box-shadow: 0 4px 12px rgba(234, 179, 8, 0.2);
+        }
+        
+        .btn-success {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--accent-green);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        
+        .btn-success:hover {
+            background: rgba(34, 197, 94, 0.25);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+        }
+        
+        .log-area {
+            background: #0d0d0e;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 16px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+        }
+        
+        .log-entry {
+            padding: 8px 12px;
+            margin: 4px 0;
+            border-radius: 6px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+        
+        .log-entry.error {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 3px solid var(--accent-red);
+        }
+        
+        .log-entry.warning {
+            background: rgba(234, 179, 8, 0.1);
+            border-left: 3px solid var(--accent-yellow);
+        }
+        
+        .log-entry.info {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid var(--accent-blue);
+        }
+        
+        .log-entry.success {
+            background: rgba(34, 197, 94, 0.1);
+            border-left: 3px solid var(--accent-green);
+        }
+        
+        .log-time {
+            color: var(--text-dim);
+            white-space: nowrap;
+        }
+        
+        .log-message {
+            color: var(--text);
+            word-break: break-word;
+        }
+        
+        .instructions {
+            padding: 20px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 10px;
+            margin-bottom: 24px;
+        }
+        
+        .instructions h3 {
+            color: var(--accent-blue);
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+        
+        .instructions ol {
+            margin-left: 20px;
+            color: var(--text-dim);
+            line-height: 1.8;
+        }
+        
+        .instructions code {
+            background: var(--bg-card);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--accent-purple);
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            color: var(--text-dim);
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔍 L2 Agent Test Page</h1>
+            <p class="subtitle">Trigger errors to test the Chrome extension's error capture capabilities</p>
+        </header>
+        
+        <div class="instructions">
+            <h3>📋 Instructions</h3>
+            <ol>
+                <li>Load the L2 Agent Chrome extension in <code>chrome://extensions/</code></li>
+                <li>Enable the extension by clicking "Enable Tracking" in the popup</li>
+                <li>Open this test page in a tab</li>
+                <li>Click the buttons below to trigger different types of errors</li>
+                <li>Open the L2 Agent popup to see captured errors</li>
+            </ol>
+        </div>
+        
+        <div class="section">
+            <h2><span>🔴</span> Console Errors</h2>
+            <div class="button-grid">
+                <button class="btn-error" onclick="triggerConsoleError()">
+                    console.error()
+                </button>
+                <button class="btn-error" onclick="triggerTypeError()">
+                    TypeError
+                </button>
+                <button class="btn-error" onclick="triggerReferenceError()">
+                    ReferenceError
+                </button>
+                <button class="btn-error" onclick="triggerSyntaxError()">
+                    SyntaxError (eval)
+                </button>
+                <button class="btn-error" onclick="triggerRangeError()">
+                    RangeError
+                </button>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2><span>🟡</span> Console Warnings</h2>
+            <div class="button-grid">
+                <button class="btn-warning" onclick="triggerConsoleWarn()">
+                    console.warn()
+                </button>
+                <button class="btn-warning" onclick="triggerAssertFail()">
+                    console.assert(false)
+                </button>
+                <button class="btn-warning" onclick="triggerDeprecation()">
+                    Deprecation Warning
+                </button>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2><span>🔗</span> API Errors (requires backend at localhost:3000)</h2>
+            <div class="button-grid">
+                <button class="btn-api" onclick="triggerApi400()">
+                    400 Bad Request
+                </button>
+                <button class="btn-api" onclick="triggerApi401()">
+                    401 Unauthorized
+                </button>
+                <button class="btn-api" onclick="triggerApi403()">
+                    403 Forbidden
+                </button>
+                <button class="btn-api" onclick="triggerApi404()">
+                    404 Not Found
+                </button>
+                <button class="btn-api" onclick="triggerApi500()">
+                    500 Server Error
+                </button>
+                <button class="btn-api" onclick="triggerNetworkError()">
+                    Network Error
+                </button>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2><span>💥</span> Promise Rejections</h2>
+            <div class="button-grid">
+                <button class="btn-error" onclick="triggerUnhandledRejection()">
+                    Unhandled Rejection
+                </button>
+                <button class="btn-error" onclick="triggerAsyncError()">
+                    Async/Await Error
+                </button>
+                <button class="btn-error" onclick="triggerChainedRejection()">
+                    Chained Rejection
+                </button>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2><span>✅</span> Success Requests (for comparison)</h2>
+            <div class="button-grid">
+                <button class="btn-success" onclick="triggerSuccessApi()">
+                    200 Success
+                </button>
+                <button class="btn-success" onclick="triggerHealthCheck()">
+                    Health Check
+                </button>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2><span>📝</span> Activity Log</h2>
+            <button class="btn-success" onclick="clearLog()" style="margin-bottom: 12px;">
+                🗑️ Clear Log
+            </button>
+            <div id="log-area" class="log-area">
+                <div class="log-entry info">
+                    <span class="log-time">[--:--:--]</span>
+                    <span class="log-message">Ready. Click a button to trigger an error.</span>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            L2 Agent Test Page • v1.0 • Freshworks
+        </footer>
+    </div>
+    
+    <script>
+        const logArea = document.getElementById('log-area');
+        
+        function log(message, type = 'info') {
+            const time = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `
+                <span class="log-time">[${time}]</span>
+                <span class="log-message">${message}</span>
+            `;
+            logArea.appendChild(entry);
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+        
+        function clearLog() {
+            logArea.innerHTML = `
+                <div class="log-entry info">
+                    <span class="log-time">[${new Date().toLocaleTimeString()}]</span>
+                    <span class="log-message">Log cleared.</span>
+                </div>
+            `;
+        }
+        
+        // Console Errors
+        function triggerConsoleError() {
+            log('Triggering console.error()', 'error');
+            console.error('L2 Agent Test: This is a deliberate console.error() for testing');
+        }
+        
+        function triggerTypeError() {
+            log('Triggering TypeError', 'error');
+            try {
+                null.someMethod();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+        
+        function triggerReferenceError() {
+            log('Triggering ReferenceError', 'error');
+            try {
+                eval('undefinedVariable.property');
+            } catch (e) {
+                console.error(e);
+            }
+        }
+        
+        function triggerSyntaxError() {
+            log('Triggering SyntaxError via eval', 'error');
+            try {
+                eval('function {');
+            } catch (e) {
+                console.error(e);
+            }
+        }
+        
+        function triggerRangeError() {
+            log('Triggering RangeError', 'error');
+            try {
+                new Array(-1);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+        
+        // Console Warnings
+        function triggerConsoleWarn() {
+            log('Triggering console.warn()', 'warning');
+            console.warn('L2 Agent Test: This is a deliberate warning for testing');
+        }
+        
+        function triggerAssertFail() {
+            log('Triggering console.assert(false)', 'warning');
+            console.assert(false, 'L2 Agent Test: This assertion intentionally failed');
+        }
+        
+        function triggerDeprecation() {
+            log('Triggering deprecation warning', 'warning');
+            console.warn('[Deprecation Warning] L2 Agent Test: someOldMethod() is deprecated. Use newMethod() instead.');
+        }
+        
+        // API Errors
+        async function triggerApi400() {
+            log('Triggering 400 Bad Request', 'error');
+            try {
+                await fetch('http://localhost:3000/api/simulate/400');
+            } catch (e) {
+                log(`Network error: ${e.message}`, 'error');
+            }
+        }
+        
+        async function triggerApi401() {
+            log('Triggering 401 Unauthorized', 'error');
+            try {
+                await fetch('http://localhost:3000/api/simulate/401');
+            } catch (e) {
+                log(`Network error: ${e.message}`, 'error');
+            }
+        }
+        
+        async function triggerApi403() {
+            log('Triggering 403 Forbidden', 'error');
+            try {
+                await fetch('http://localhost:3000/api/simulate/403');
+            } catch (e) {
+                log(`Network error: ${e.message}`, 'error');
+            }
+        }
+        
+        async function triggerApi404() {
+            log('Triggering 404 Not Found', 'error');
+            try {
+                await fetch('http://localhost:3000/api/simulate/404');
+            } catch (e) {
+                log(`Network error: ${e.message}`, 'error');
+            }
+        }
+        
+        async function triggerApi500() {
+            log('Triggering 500 Server Error', 'error');
+            try {
+                await fetch('http://localhost:3000/api/simulate/500');
+            } catch (e) {
+                log(`Network error: ${e.message}`, 'error');
+            }
+        }
+        
+        async function triggerNetworkError() {
+            log('Triggering Network Error (non-existent server)', 'error');
+            try {
+                await fetch('http://localhost:9999/nonexistent');
+            } catch (e) {
+                log(`Network error: ${e.message}`, 'error');
+            }
+        }
+        
+        // Promise Rejections
+        function triggerUnhandledRejection() {
+            log('Triggering Unhandled Promise Rejection', 'error');
+            Promise.reject(new Error('L2 Agent Test: This promise was intentionally rejected'));
+        }
+        
+        async function triggerAsyncError() {
+            log('Triggering Async/Await Error', 'error');
+            async function failingFunction() {
+                throw new Error('L2 Agent Test: Async function threw an error');
+            }
+            // Don't catch - let it become unhandled rejection
+            failingFunction();
+        }
+        
+        function triggerChainedRejection() {
+            log('Triggering Chained Promise Rejection', 'error');
+            Promise.resolve()
+                .then(() => {
+                    throw new Error('L2 Agent Test: Error in promise chain');
+                });
+        }
+        
+        // Success Requests
+        async function triggerSuccessApi() {
+            log('Triggering successful API call', 'success');
+            try {
+                const response = await fetch('http://localhost:3000/api/test', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ test: true })
+                });
+                const data = await response.json();
+                log(`Success: ${JSON.stringify(data).slice(0, 100)}...`, 'success');
+            } catch (e) {
+                log(`Network error: ${e.message}`, 'error');
+            }
+        }
+        
+        async function triggerHealthCheck() {
+            log('Triggering health check', 'success');
+            try {
+                const response = await fetch('http://localhost:3000/health');
+                const data = await response.json();
+                log(`Health: ${data.status} - API: ${data.services.api}`, 'success');
+            } catch (e) {
+                log(`Network error: ${e.message}`, 'error');
+            }
+        }
+        
+        // Log page load
+        log('Test page loaded successfully!', 'success');
+    </script>
+</body>
+</html>
+

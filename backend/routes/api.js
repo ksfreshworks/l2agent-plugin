@@ -26,6 +26,60 @@ router.post("/test", async (req, res) => {
   }
 });
 
+// Simulate error endpoints for testing the Chrome extension
+router.get("/simulate/400", (req, res) => {
+  res.status(400).json({
+    error: "Bad Request",
+    message: "Simulated 400 error for testing L2 Agent",
+    code: "VALIDATION_ERROR",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+router.get("/simulate/401", (req, res) => {
+  res.status(401).json({
+    error: "Unauthorized",
+    message: "Simulated 401 error for testing L2 Agent",
+    code: "AUTH_REQUIRED",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+router.get("/simulate/403", (req, res) => {
+  res.status(403).json({
+    error: "Forbidden",
+    message: "Simulated 403 error for testing L2 Agent",
+    code: "ACCESS_DENIED",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+router.get("/simulate/404", (req, res) => {
+  res.status(404).json({
+    error: "Not Found",
+    message: "Simulated 404 error for testing L2 Agent",
+    code: "RESOURCE_NOT_FOUND",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+router.get("/simulate/500", (req, res) => {
+  res.status(500).json({
+    error: "Internal Server Error",
+    message: "Simulated 500 error for testing L2 Agent",
+    code: "INTERNAL_ERROR",
+    timestamp: new Date().toISOString(),
+    traceId: `trace-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+  });
+});
+
+router.post("/simulate/timeout", async (req, res) => {
+  // Simulate a long-running request
+  const delay = parseInt(req.query.delay) || 30000;
+  await new Promise((resolve) => setTimeout(resolve, delay));
+  res.json({ message: "Request completed after delay" });
+});
+
 // Endpoint to receive data from Chrome extension and process with LLM
 router.post("/process", async (req, res) => {
   try {

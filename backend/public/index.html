@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L2 Agent Dashboard - Error Analytics</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">🔍</span>
+                    <span class="logo-text">L2 Agent</span>
+                </div>
+                <span class="version">v1.0</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-page="overview">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-label">Overview</span>
+                </a>
+                <a href="#" class="nav-item" data-page="errors">
+                    <span class="nav-icon">🔴</span>
+                    <span class="nav-label">Errors</span>
+                    <span class="nav-badge" id="error-badge">0</span>
+                </a>
+                <a href="#" class="nav-item" data-page="api">
+                    <span class="nav-icon">🔗</span>
+                    <span class="nav-label">API Failures</span>
+                    <span class="nav-badge" id="api-badge">0</span>
+                </a>
+                <a href="#" class="nav-item" data-page="crashes">
+                    <span class="nav-icon">💥</span>
+                    <span class="nav-label">Crashes</span>
+                    <span class="nav-badge" id="crash-badge">0</span>
+                </a>
+                <a href="#" class="nav-item" data-page="sessions">
+                    <span class="nav-icon">👤</span>
+                    <span class="nav-label">Sessions</span>
+                </a>
+                <a href="#" class="nav-item" data-page="heatmap">
+                    <span class="nav-icon">🗺️</span>
+                    <span class="nav-label">Error Heatmap</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="connection-status" id="connection-status">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Connecting...</span>
+                </div>
+                <button class="btn-refresh" onclick="refreshData()">
+                    🔄 Refresh
+                </button>
+                <button class="btn-refresh" onclick="loadDemoData()" style="margin-top: 8px; background: var(--accent-purple-soft); border-color: var(--accent-purple);">
+                    🎭 Load Demo Data
+                </button>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="main-header">
+                <div class="header-left">
+                    <h1 id="page-title">Overview</h1>
+                    <p class="header-subtitle" id="page-subtitle">Error analytics and crash diagnostics</p>
+                </div>
+                <div class="header-right">
+                    <div class="search-box">
+                        <input type="text" id="global-search" placeholder="Search errors, trace IDs, URLs...">
+                        <span class="search-icon">🔍</span>
+                    </div>
+                    <div class="time-filter">
+                        <select id="time-range">
+                            <option value="1h">Last 1 hour</option>
+                            <option value="24h" selected>Last 24 hours</option>
+                            <option value="7d">Last 7 days</option>
+                            <option value="30d">Last 30 days</option>
+                            <option value="all">All time</option>
+                        </select>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Page Content -->
+            <div class="page-content">
+                <!-- Overview Page -->
+                <section id="page-overview" class="page active">
+                    <!-- Stats Cards -->
+                    <div class="stats-grid">
+                        <div class="stat-card" data-type="crashes">
+                            <div class="stat-icon">💥</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="stat-crashes">0</span>
+                                <span class="stat-label">Crashes</span>
+                            </div>
+                            <div class="stat-trend down" id="trend-crashes">
+                                <span>↓ 0%</span>
+                            </div>
+                        </div>
+                        <div class="stat-card" data-type="errors">
+                            <div class="stat-icon">🔴</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="stat-errors">0</span>
+                                <span class="stat-label">Console Errors</span>
+                            </div>
+                            <div class="stat-trend" id="trend-errors">
+                                <span>— 0%</span>
+                            </div>
+                        </div>
+                        <div class="stat-card" data-type="api">
+                            <div class="stat-icon">🔗</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="stat-api">0</span>
+                                <span class="stat-label">API Failures</span>
+                            </div>
+                            <div class="stat-trend" id="trend-api">
+                                <span>— 0%</span>
+                            </div>
+                        </div>
+                        <div class="stat-card" data-type="sessions">
+                            <div class="stat-icon">👤</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="stat-sessions">0</span>
+                                <span class="stat-label">Sessions</span>
+                            </div>
+                            <div class="stat-trend" id="trend-sessions">
+                                <span>— 0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Charts Row -->
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3>Error Frequency</h3>
+                                <div class="chart-legend">
+                                    <span class="legend-item"><span class="legend-dot crashes"></span> Crashes</span>
+                                    <span class="legend-item"><span class="legend-dot errors"></span> Errors</span>
+                                    <span class="legend-item"><span class="legend-dot api"></span> API</span>
+                                </div>
+                            </div>
+                            <div class="chart-body">
+                                <canvas id="error-chart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3>Error Distribution</h3>
+                            </div>
+                            <div class="chart-body">
+                                <canvas id="distribution-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Activity -->
+                    <div class="activity-section">
+                        <div class="section-header">
+                            <h3>Recent Activity</h3>
+                            <a href="#" class="view-all" onclick="navigateTo('errors')">View all →</a>
+                        </div>
+                        <div class="activity-list" id="recent-activity">
+                            <div class="empty-state">
+                                <span class="empty-icon">📭</span>
+                                <p>No recent activity</p>
+                                <small>Errors will appear here when captured by the extension</small>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Errors Page -->
+                <section id="page-errors" class="page">
+                    <div class="page-toolbar">
+                        <div class="filter-group">
+                            <select id="error-type-filter">
+                                <option value="all">All Types</option>
+                                <option value="TypeError">TypeError</option>
+                                <option value="ReferenceError">ReferenceError</option>
+                                <option value="SyntaxError">SyntaxError</option>
+                                <option value="console.error">console.error</option>
+                                <option value="unhandled_rejection">Promise Rejection</option>
+                            </select>
+                            <select id="error-severity-filter">
+                                <option value="all">All Severity</option>
+                                <option value="critical">Critical</option>
+                                <option value="high">High</option>
+                                <option value="medium">Medium</option>
+                                <option value="low">Low</option>
+                            </select>
+                        </div>
+                        <div class="action-group">
+                            <button class="btn btn-secondary" onclick="exportErrors('console')">
+                                📥 Export
+                            </button>
+                            <button class="btn btn-danger" onclick="clearErrors('console')">
+                                🗑️ Clear All
+                            </button>
+                        </div>
+                    </div>
+                    <div class="error-table-container">
+                        <table class="error-table" id="error-table">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Message</th>
+                                    <th>URL</th>
+                                    <th>Time</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="error-table-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination" id="error-pagination">
+                        <!-- Populated by JS -->
+                    </div>
+                </section>
+                
+                <!-- API Failures Page -->
+                <section id="page-api" class="page">
+                    <div class="page-toolbar">
+                        <div class="filter-group">
+                            <select id="api-status-filter">
+                                <option value="all">All Status</option>
+                                <option value="4xx">4xx Client Errors</option>
+                                <option value="5xx">5xx Server Errors</option>
+                                <option value="0">Network Errors</option>
+                            </select>
+                            <select id="api-method-filter">
+                                <option value="all">All Methods</option>
+                                <option value="GET">GET</option>
+                                <option value="POST">POST</option>
+                                <option value="PUT">PUT</option>
+                                <option value="DELETE">DELETE</option>
+                            </select>
+                        </div>
+                        <div class="action-group">
+                            <button class="btn btn-secondary" onclick="exportErrors('api')">
+                                📥 Export
+                            </button>
+                        </div>
+                    </div>
+                    <div class="error-table-container">
+                        <table class="error-table" id="api-table">
+                            <thead>
+                                <tr>
+                                    <th>Method</th>
+                                    <th>URL</th>
+                                    <th>Status</th>
+                                    <th>Duration</th>
+                                    <th>Trace ID</th>
+                                    <th>Time</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="api-table-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                
+                <!-- Crashes Page -->
+                <section id="page-crashes" class="page">
+                    <div class="crashes-grid" id="crashes-grid">
+                        <div class="empty-state">
+                            <span class="empty-icon">✅</span>
+                            <p>No crashes detected</p>
+                            <small>Crashes will appear here when detected by the extension</small>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Sessions Page -->
+                <section id="page-sessions" class="page">
+                    <div class="sessions-list" id="sessions-list">
+                        <div class="empty-state">
+                            <span class="empty-icon">👤</span>
+                            <p>No sessions tracked</p>
+                            <small>Sessions will appear here when users browse with the extension</small>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Heatmap Page -->
+                <section id="page-heatmap" class="page">
+                    <div class="heatmap-container">
+                        <div class="heatmap-header">
+                            <h3>Error Frequency by Module/Page</h3>
+                            <p>Identify which pages and components are causing the most errors</p>
+                        </div>
+                        <div class="heatmap-grid" id="heatmap-grid">
+                            <div class="empty-state">
+                                <span class="empty-icon">🗺️</span>
+                                <p>No data for heatmap</p>
+                                <small>Error patterns will be visualized here</small>
+                            </div>
+                        </div>
+                        <div class="heatmap-legend">
+                            <span class="legend-label">Low</span>
+                            <div class="legend-gradient"></div>
+                            <span class="legend-label">High</span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Error Detail Modal -->
+    <div class="modal" id="error-modal">
+        <div class="modal-backdrop" onclick="closeModal('error-modal')"></div>
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h3 id="modal-error-type">Error Details</h3>
+                <button class="modal-close" onclick="closeModal('error-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-section">
+                    <h4>Message</h4>
+                    <pre id="modal-error-message" class="code-block"></pre>
+                </div>
+                <div class="detail-section">
+                    <h4>Stack Trace</h4>
+                    <pre id="modal-error-stack" class="code-block stack-trace"></pre>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-item">
+                        <span class="detail-label">URL</span>
+                        <span class="detail-value" id="modal-error-url"></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Timestamp</span>
+                        <span class="detail-value" id="modal-error-time"></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">File</span>
+                        <span class="detail-value" id="modal-error-file"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="copyErrorDetails()">
+                    📋 Copy Details
+                </button>
+                <button class="btn btn-primary" onclick="analyzeWithLLM()">
+                    🤖 Analyze with LLM
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- API Detail Modal -->
+    <div class="modal" id="api-modal">
+        <div class="modal-backdrop" onclick="closeModal('api-modal')"></div>
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h3>API Request Details</h3>
+                <button class="modal-close" onclick="closeModal('api-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="api-summary">
+                    <span class="api-method" id="modal-api-method">GET</span>
+                    <span class="api-status" id="modal-api-status">500</span>
+                    <span class="api-url" id="modal-api-url"></span>
+                </div>
+                <div class="detail-tabs">
+                    <button class="tab-btn active" data-tab="request">Request</button>
+                    <button class="tab-btn" data-tab="response">Response</button>
+                    <button class="tab-btn" data-tab="timing">Timing</button>
+                </div>
+                <div class="tab-content active" id="tab-request">
+                    <h4>Headers</h4>
+                    <pre id="modal-api-req-headers" class="code-block"></pre>
+                    <h4>Body</h4>
+                    <pre id="modal-api-req-body" class="code-block"></pre>
+                </div>
+                <div class="tab-content" id="tab-response">
+                    <h4>Headers</h4>
+                    <pre id="modal-api-res-headers" class="code-block"></pre>
+                    <h4>Body</h4>
+                    <pre id="modal-api-res-body" class="code-block"></pre>
+                </div>
+                <div class="tab-content" id="tab-timing">
+                    <div class="timing-info">
+                        <div class="timing-item">
+                            <span class="timing-label">Duration</span>
+                            <span class="timing-value" id="modal-api-duration">0ms</span>
+                        </div>
+                        <div class="timing-item">
+                            <span class="timing-label">Trace ID</span>
+                            <span class="timing-value" id="modal-api-trace"></span>
+                        </div>
+                        <div class="timing-item">
+                            <span class="timing-label">Timestamp</span>
+                            <span class="timing-value" id="modal-api-time"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="copyApiDetails()">
+                    📋 Copy Details
+                </button>
+                <button class="btn btn-primary" onclick="analyzeApiWithLLM()">
+                    🤖 Analyze with LLM
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- LLM Analysis Modal -->
+    <div class="modal" id="llm-modal">
+        <div class="modal-backdrop" onclick="closeModal('llm-modal')"></div>
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h3>🤖 LLM Analysis</h3>
+                <button class="modal-close" onclick="closeModal('llm-modal')">&times;</button>
+            </div>
+            <div class="modal-body" id="llm-modal-body">
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Analyzing error data...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="copyLLMAnalysis()">
+                    📋 Copy Analysis
+                </button>
+                <button class="btn btn-primary" onclick="downloadLLMAnalysis()">
+                    📥 Download Report
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toast-container"></div>
+    
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
+
